@@ -5,7 +5,7 @@ on:
     inputs:
       aws_region:
         description: 'aws region'
-        required: false
+        required: true
         default: 'cn-north-1'
       path:
         description: 'the lambda job dir'
@@ -18,12 +18,9 @@ on:
   #release:
   #  types: [created]
 
-env:
-  AWS_REGION: cn-north-1
-
 jobs:
   deploy:
-    name: Deploy
+    name: Lambda Deploy
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,13 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      #- name: Configure AWS credentials
-      #  uses: aws-actions/configure-aws-credentials@v1
-      #  with:
-      #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #    aws-region: ${{ env.AWS_REGION }}
-
       - name: Install Go
         uses: actions/setup-go@v1
         with:
@@ -47,8 +37,9 @@ jobs:
 
       - name: Build binary
         run: |
+          go get github.com/aws/aws-lambda-go/lambda
           cd ${{ github.event.inputs.path }}
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -o main main.go
+          GOOS=linux GOARCH=amd64 go build -v -a -o main main.go
           zip deployment.zip main
 
       - name: Deploy
@@ -56,6 +47,6 @@ jobs:
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
+          aws_region: ${{ github.event.inputs.aws_region }}
           function_name: ${{ github.event.inputs.function_name }}
           zip_file: ${{ github.event.inputs.path }}/deployment.zip
