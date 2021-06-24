@@ -1,0 +1,61 @@
+name: Deploy to Amazon Lambda
+
+on:
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        description: 'aws region'
+        required: false
+        default: 'cn-north-1'
+      path:
+        description: 'the lambda job dir'
+        required: true
+        default: 'lambda_deploy/export_create_job'
+      function_name:
+        description: 'the lambda function name'
+        required: true
+        default: 'export_create_job'
+  #release:
+  #  types: [created]
+
+env:
+  AWS_REGION: cn-north-1
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.16.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      #- name: Configure AWS credentials
+      #  uses: aws-actions/configure-aws-credentials@v1
+      #  with:
+      #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #    aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Build binary
+        run: |
+          cd ${{ github.event.inputs.path }}
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -o main main.go
+          zip deployment.zip main
+
+      - name: Deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: ${{ github.event.inputs.function_name }}
+          zip_file: ${{ github.event.inputs.path }}/deployment.zip
