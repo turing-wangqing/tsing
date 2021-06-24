@@ -37,9 +37,8 @@ jobs:
 
       - name: Build binary
         run: |
-          go get github.com/aws/aws-lambda-go/lambda
           cd ${{ github.event.inputs.path }}
-          GOOS=linux GOARCH=amd64 go build -v -a -o main main.go
+          GOOS=linux GOARCH=amd64 go build -o main main.go
           zip deployment.zip main
 
       - name: Deploy
