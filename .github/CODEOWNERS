@@ -1,4 +1,4 @@
-/go.mod @turing-wangqing
+/go.mod @turingvideo/infra
 /test/ @turing-wangqing
 export_create_job/ @turing-wangqing
 sing* @turing-wangqing
