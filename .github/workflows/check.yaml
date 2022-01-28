@@ -40,4 +40,13 @@ jobs:
     - uses: actions/checkout@v2
     - uses: stefanprodan/kube-tools@v1
       with:
-        command: kubeval --ignore-missing-schemas ${{ needs.changed.outputs.files }}
+        command: |
+          files=""
+          for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
+            if [[ $file =~ .*github.* ]]; then
+              echo "ignore $file"
+            else
+              files=$files" "$file
+            fi
+          done
+          kubeval --ignore-missing-schemas $files
