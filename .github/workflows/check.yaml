@@ -6,6 +6,8 @@ on:
     - master
     paths:
     - '**.yaml'
+    paths-ignore:
+    - '.github/**'
 
 jobs:
   changed:
@@ -22,8 +24,8 @@ jobs:
       uses: tj-actions/changed-files@v11.9
       with:
         files: |
-          *.yaml
           !.github
+          *.yaml
     - name: List all modified files
       run: |
         for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
