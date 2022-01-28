@@ -20,6 +20,8 @@ jobs:
     - name: Get changed files
       id: changed-files
       uses: tj-actions/changed-files@v11.9
+      with:
+        files: *.yaml
     - name: List all modified files
       run: |
         for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
