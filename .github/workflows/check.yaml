@@ -6,8 +6,7 @@ on:
     - master
     paths:
     - '**.yaml'
-    paths-ignore:
-    - '.github/**'
+    - '!.github/**'
 
 jobs:
   changed:
