@@ -35,4 +35,4 @@ jobs:
     - uses: actions/checkout@v2
     - uses: makocchi-git/actions-k8s-manifests-validate-kubeval@v1.0.1
       with:
-        files: needs.changed.outputs.files
+        files: ${{ needs.changed.outputs.files }}
