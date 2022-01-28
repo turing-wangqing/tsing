@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - **.yaml
+    - '**.yaml'
 
 jobs:
   changed:
