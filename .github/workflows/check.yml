@@ -1,0 +1,38 @@
+name: YAML Check
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - **.yaml
+
+jobs:
+  changed:
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.output.outputs.files }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v11.9
+    - name: List all modified files
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
+          echo "$file"
+        done
+    - id: output
+      run: echo "::set-output name=files::${{ steps.changed-files.outputs.all_modified_files }}"
+
+  validation:
+    runs-on: ubuntu-latest
+    needs: changed
+    steps:
+    - uses: actions/checkout@v2
+    - uses: makocchi-git/actions-k8s-manifests-validate-kubeval@1.0.0
+      with:
+        files: needs.changed.outputs.files
